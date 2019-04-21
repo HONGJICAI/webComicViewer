@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Comic from "./Comic.js"
-
+import styled from 'styled-components';
 
 
 function Index() {
@@ -12,30 +12,48 @@ function Video() {
   return <h2>Video WIP</h2>;
 }
 
-function AppRouter() {
+function App() {
+  const Nav = styled.nav`
+  background-color: #61dafb;
+  `;
+  const Ul = styled.ul`
+  display: table;
+  width:100%;
+  `;
+  const Li = styled.li`
+  width: 25%;
+  display: inline;
+  float: left;
+`;
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/comic/">Comic</Link>
-            </li>
-            <li>
-              <Link to="/video/">Video</Link>
-            </li>
-          </ul>
-        </nav>
-
-        <Route path="/" exact component={Index} />
-        <Route path="/comic/" exact component={Comic} />
-        <Route path="/video/" exact component={Video} />
+        <div>
+          <Nav>
+            <Ul>
+              <Li>
+                <Link to="/">Home</Link>
+              </Li>
+              <Li>
+                <Link to="/comic/">Comic</Link>
+              </Li>
+              <Li>
+                <Link to="/video/">Video</Link>
+              </Li>
+              <Li>
+                <Link to="/image/">Image</Link>
+              </Li>
+            </Ul>
+          </Nav>
+        </div>
+        <div>
+          <Route path="/" exact component={Index} />
+          <Route path="/comic" exact component={Comic} />
+          <Route path="/video" exact component={Video} />
+        </div>
       </div>
     </Router>
   );
 }
 
-export default AppRouter;
+export default App;
