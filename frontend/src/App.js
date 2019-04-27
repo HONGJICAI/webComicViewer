@@ -17,11 +17,13 @@ function App() {
   background-color: #61dafb;
   `;
   const Ul = styled.ul`
+  margin:0;
+  padding:0;
   display: table;
   width:100%;
   `;
   const Li = styled.li`
-  width: 25%;
+  width: 20%;
   display: inline;
   float: left;
 `;
@@ -48,8 +50,8 @@ function App() {
         </div>
         <div>
           <Route path="/" exact component={Index} />
-          <Route path="/comic" exact component={Comic} />
-          <Route path="/video" exact component={Video} />
+          <Route path="/comic" component={Comic} />
+          <Route path="/video" component={Video} />
         </div>
       </div>
     </Router>
