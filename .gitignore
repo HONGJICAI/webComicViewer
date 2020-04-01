@@ -80,5 +80,4 @@ instance/
 docs/_build/
 
 # my
-test*
 .vscode

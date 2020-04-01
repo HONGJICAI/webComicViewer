@@ -1,0 +1,5 @@
+flask
+flasgger
+flask_cors
+pytest
+coverage
