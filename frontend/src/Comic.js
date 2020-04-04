@@ -1,17 +1,62 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import styled from 'styled-components';
 import PageNav from './PageNav.js'
 
-// let backendHost = "http://192.168.2.149:5000";
-let backendHost = "http://192.168.2.116:5000";
-class ComicContent extends React.Component {
+let backendHost = "http://127.0.0.1:4999";
+class ComicPageViewContent extends React.Component {
   constructor(props) {
     super(props);
-    console.log('cons');
-    // const uri = window.location.pathname.split('/');
-    // this.filename = uri[uri.length - 1];
-    this.filename = props.filename;
+    this.comic = props.comic;
+    this.state = {
+      curPage: 0
+    };
+  }
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll);
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+  handleKeyDown = (event) => {
+    console.log(event.key);
+    switch (event.key) {
+      case "ArrowRight":
+        break;
+      case "ArrowLeft":
+        break;
+    }
+  }
+  render() {
+    const Img = styled.img`
+        width: 100%;
+    `;
+    const contents =
+      <Img
+        src={`${backendHost}/api/v1/comics/${this.comic.id}?page=${this.state.curPage}`}
+        onError={(e) => {
+          e.target.onError = null; e.target.src = "";
+          this.setState({
+            curPage: this.state.curPage - 1
+          })
+        }
+        }
+      />;
+    return (
+      <div>
+        {contents}
+        <button onClick={() => { this.setState({ curPage: Math.max(0, this.state.curPage - 1) }) }}>Pre</button>
+        <button onClick={() => { this.setState({ curPage: this.state.curPage + 1 }) }}>Next</button>
+      </div>
+    );
+  }
+}
+class ComicScrollViewContent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.comic = props.comic;
     this.loadNumPerReq = 3;
     this.state = {
       maxPage: this.loadNumPerReq,
@@ -20,10 +65,13 @@ class ComicContent extends React.Component {
     this.handleScroll = this.handleScroll.bind(this);
   }
   componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('scroll', this.handleScroll);
+    document.addEventListener("keydown", this.handleKeyDown);
+
   }
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener("keydown", this.handleKeyDown);
   }
   handleScroll() {
     if (!this.state.continueLoading) {
@@ -39,16 +87,27 @@ class ComicContent extends React.Component {
       this.setState({ maxPage: this.state.maxPage + this.loadNumPerReq });
     }
   }
+  handleKeyDown = (event) => {
+    console.log(event.key);
+    const curY = document.documentElement.scrollTop || document.body.scrollTop;
+    const curX = window.pageYOffset;
+    switch (event.key) {
+      case "ArrowRight":
+        window.scrollTo(curX, curY + window.innerHeight);
+        break;
+      case "ArrowLeft":
+        window.scrollTo(curX, Math.max(0, curY - window.innerHeight));
+        break;
+    }
+  }
   render() {
-    console.log('render');
     const pages = Array.from(new Array(this.state.maxPage), (val, index) => index);
     const Img = styled.img`
         width: 100%;
     `;
-    console.log(`${backendHost}/api/v1/comics/${this.filename}?page=${0}`);
     const contents = pages.map((val, idx) =>
-      <Img key={"Content" + this.filename + String(idx)}
-        src={`${backendHost}/api/v1/comics/${this.filename}?page=${val}`}
+      <Img key={"Content" + this.comic.name + String(idx)}
+        src={`${backendHost}/api/v1/comics/${this.comic.id}?page=${val}`}
         onError={(e) => {
           e.target.onError = null; e.target.src = "";
           this.setState({
@@ -60,7 +119,92 @@ class ComicContent extends React.Component {
       />
     );
     return (
+      <div>
         {contents}
+      </div>
+    );
+  }
+}
+
+class ComicPreview extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      comics: this.props.comics,
+    };
+  }
+  componentWillReceiveProps(nextProps) {
+    nextProps.comics !== this.props.comics && this.setState({
+      comics: nextProps.comics
+    })
+  }
+  render() {
+    const Img = styled.img`
+      width: 25%;
+    `;
+    const [comicid] = [this.props.match.params.comicid];
+    if (this.state.comics == undefined || comicid >= this.state.comics.length) {
+      return <div>Loading</div>;
+    }
+    const comic = this.state.comics[comicid];
+    const detail =
+      <div>
+        <Img src={`${backendHost}/api/v1/comics/${comic.id}`}></Img>
+        {comic.name}
+        <Link to={`/comic/${comic.id}/ScrollView`}>
+          <button>ScrollView</button>
+        </Link>
+        <Link to={`/comic/${comic.id}/PageView`}>
+          <button>PageView</button>
+        </Link>
+      </div>;
+    return (
+      <Switch>
+        <Route exact path={`/comic/${comic.id}`}
+          render={() => <div>{detail}</div>}
+        />
+        <Route key={"Route" + comic.name} path={`/comic/${comic.id}/ScrollView`}
+          render={() => <ComicScrollViewContent comic={comic} />}
+        />
+        <Route key={"Route" + comic.name} path={`/comic/${comic.id}/PageView`}
+          render={() => <ComicPageViewContent comic={comic} />}
+        />
+      </Switch>
+    );
+  }
+}
+
+class ComicList extends React.Component {
+  render() {
+    const Img = styled.img`
+      width: 25%;
+    `;
+    const comics = this.props.comics;
+    const numPerPage = this.props.numPerPage;
+    const listItems = comics.map((comic, idx) =>
+      <li key={"List" + comic.id}>
+        <Link to={`/comic/${comic.id}`}>
+          <Img src={`${backendHost}/api/v1/comics/${comic.id}`}></Img>
+          {comic.name}
+        </Link>
+      </li>
+    );
+    return (
+      <Switch>
+        <Route exact path='/comic'
+          render={() =>
+            <div>
+              <ul>
+                {listItems.slice((this.props.curPage - 1) * numPerPage, Math.min(this.props.curPage * numPerPage, comics.length))}
+              </ul>
+              {this.props.pageNav}
+            </div>
+          }
+        />
+        <Route path='/comic/:comicid'
+          render={props => <ComicPreview {...props} comics={this.props.comics} />}
+        />
+      </Switch>
     );
   }
 }
@@ -71,7 +215,7 @@ class Comic extends React.Component {
     this.state = {
       comics: [],
       renderContent: false,
-      numPerPage: 10,
+      numPerPage: 5,
       curPage: 1
     };
     this.getList();
@@ -87,22 +231,6 @@ class Comic extends React.Component {
     }
   }
   render() {
-    const Img = styled.img`
-      width: 25%;
-    `;
-    const listItems = this.state.comics.map((filename, idx) =>
-      <li key={"List" + filename} onClick={() => this.setState({ renderContent: true })}>
-        <Link to={`/comic/${filename}`}>
-          <Img src={`${backendHost}/api/v1/comics/${filename}`}></Img>
-          {filename}
-        </Link>
-      </li>
-    );
-    const listRoute = this.state.comics.map(filename =>
-      <Route key={"Route" + filename} path={`/comic/${filename}`}
-        render={ ()=><ComicContent filename={filename}/>}
-      />
-    );
     const totalPage = parseInt(this.state.comics.length / this.state.numPerPage) + (this.state.comics.length % this.state.numPerPage ? 1 : 0);
     const pageInfo = {
       curPage: this.state.curPage,
@@ -113,22 +241,12 @@ class Comic extends React.Component {
         onClickPre={() => this.setState({ curPage: Math.max(1, this.state.curPage - 1) })}
         onClickNext={() => this.setState({ curPage: Math.min(totalPage, this.state.curPage + 1) })}
       />;
-    return (
-      <Router>
-        {this.state.renderContent ?
-          (listRoute) :
-          (
-            <div>
-              {pageNav}
-              <ul>
-                {listItems.slice((this.state.curPage - 1) * this.state.numPerPage, Math.min(this.state.curPage * this.state.numPerPage, this.state.comics.length))}
-              </ul>
-              {pageNav}
-            </div>
-          )
-        }
-      </Router>
-    );
+    return <ComicList
+      comics={this.state.comics}
+      numPerPage={this.state.numPerPage}
+      curPage={this.state.curPage}
+      pageNav={pageNav}
+    />;
   }
 }
 
