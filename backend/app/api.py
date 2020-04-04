@@ -1,6 +1,6 @@
 import os
 import sys
-from zipfile import ZipFile
+import zipfile
 
 from flasgger import Swagger
 from flask import Blueprint, Flask, Response, abort
@@ -16,12 +16,12 @@ allowZips = [".zip"]
 
 
 def readComicFromZip(filepath, page=0):
-    with ZipFile(filepath) as archive:
+    with zipfile.ZipFile(filepath) as archive:
         zipInfos = archive.infolist()
         if page >= len(zipInfos):
-            abort(404)
+            return False, None
         with archive.open(zipInfos[page]) as f:
-            return f.read()
+            return True, f.read()
 
 
 def loadComicsList(path):
@@ -39,6 +39,12 @@ def comics():
     """returning a list of comics information
     This is using docstrings for specifications.
     ---
+    parameters:
+      - name: refresh
+        type: bool
+        required: false
+        default: false
+        description: specific whether to refresh the comic list config
     definitions:
       Comic:
         type: object
@@ -66,16 +72,37 @@ def comics():
 
 @apiv1.route('/comics/<int:id>')
 def getComic(id):
+    """returning image from zip file
+    returning mimetype is "image/jpeg"
+    ---
+    parameters:
+      - name: id
+        type: int
+        required: true
+        default: 0
+        description: comic id
+      - name: page
+        type: int
+        in: path
+        required: false
+        default: 0
+        description: comic page
+    responses:
+      200:
+        description: Specific comic image with mimetype="image/jpeg"
+      404:
+        description: Specific comic id or comic page not exist
+    """
+    if id >= len(app.config['COMICLIST']):
+        abort(404)
     comicInfo = app.config['COMICLIST'][id]
     filepath = comicInfo['path']
     ext = os.path.splitext(filepath)[-1].lower()
     page = int(request.args.get('page', 0))
-    if ext in allowZips:
-        buf = readComicFromZip(os.path.join(
-            app.config['COMICPATH'], filepath), page)
+    ret, buf = readComicFromZip(os.path.join(
+        app.config['COMICPATH'], filepath), page)
+    if ret:
         return Response(response=buf, mimetype="image/jpeg")
-    if ext in allowImgs:
-        return send_from_directory(app.config['COMICPATH'], filepath)
     abort(404)
 
 

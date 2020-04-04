@@ -4,6 +4,55 @@ import styled from 'styled-components';
 import PageNav from './PageNav.js'
 
 let backendHost = "http://127.0.0.1:4999";
+class ComicPageViewContent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.comic = props.comic;
+    this.state = {
+      curPage: 0
+    };
+  }
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll);
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+  handleKeyDown = (event) => {
+    console.log(event.key);
+    switch (event.key) {
+      case "ArrowRight":
+        break;
+      case "ArrowLeft":
+        break;
+    }
+  }
+  render() {
+    const Img = styled.img`
+        width: 100%;
+    `;
+    const contents =
+      <Img
+        src={`${backendHost}/api/v1/comics/${this.comic.id}?page=${this.state.curPage}`}
+        onError={(e) => {
+          e.target.onError = null; e.target.src = "";
+          this.setState({
+            curPage: this.state.curPage - 1
+          })
+        }
+        }
+      />;
+    return (
+      <div>
+        {contents}
+        <button onClick={() => { this.setState({ curPage: Math.max(0, this.state.curPage - 1) }) }}>Pre</button>
+        <button onClick={() => { this.setState({ curPage: this.state.curPage + 1 }) }}>Next</button>
+      </div>
+    );
+  }
+}
 class ComicScrollViewContent extends React.Component {
   constructor(props) {
     super(props);
@@ -116,6 +165,9 @@ class ComicPreview extends React.Component {
         />
         <Route key={"Route" + comic.name} path={`/comic/${comic.id}/ScrollView`}
           render={() => <ComicScrollViewContent comic={comic} />}
+        />
+        <Route key={"Route" + comic.name} path={`/comic/${comic.id}/PageView`}
+          render={() => <ComicPageViewContent comic={comic} />}
         />
       </Switch>
     );
