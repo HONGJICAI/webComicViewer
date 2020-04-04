@@ -1,5 +1,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Intro
+
+[![Build Status](https://geeklovecode.visualstudio.com/PersonalStuff/_apis/build/status/HONGJICAI.webComicViewer?branchName=master)](https://geeklovecode.visualstudio.com/PersonalStuff/_build/latest?definitionId=3&branchName=master)
+
+This is the frontend codebase for WebComicViewer App.
+
 ## Available Scripts
 
 In the project directory, you can run:

@@ -1,0 +1,48 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+- dev
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-16.04'
+      python.version: '3.7.6'
+    mac:
+      imageName: 'macos-10.14'
+      python.version: '3.7.6'
+    windows:
+      imageName: 'vs2017-win2016'
+      python.version: '3.7.6'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    cd backend
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    cd backend
+    pip install pytest coverage
+    coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
+    coverage report
+  displayName: 'pytest with coverage'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: 'reports/flask-basic-coverage.xml'
+    testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
+  condition: succeededOrFailed()
