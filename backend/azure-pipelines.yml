@@ -7,16 +7,23 @@ trigger:
 - master
 - dev
 
-pool:
-  vmImage: 'ubuntu-latest'
 strategy:
   matrix:
-    Python35:
-      python.version: '3.5'
+    # python version
     Python36:
       python.version: '3.6'
     Python37:
       python.version: '3.7'
+    # operation system
+    linux:
+      imageName: 'ubuntu-16.04'
+    mac:
+      imageName: 'macos-10.14'
+    windows:
+      imageName: 'vs2017-win2016'
+
+pool:
+  vmImage: $(imageName)
 
 steps:
 - task: UsePythonVersion@0
@@ -33,5 +40,12 @@ steps:
 - script: |
     cd '$(System.DefaultWorkingDirectory)/backend'
     pip install pytest pytest-azurepipelines coverage
-    coverage run -m pytest
+    coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
+    coverage report
   displayName: 'pytest with coverage'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: 'reports/flask-basic-coverage.xml'
+    testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
+  condition: succeededOrFailed()
