@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import Comic from "./Comic.js"
+import Comic from "./Comic"
 import styled from 'styled-components';
 
 

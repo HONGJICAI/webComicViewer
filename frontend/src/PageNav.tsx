@@ -1,7 +1,11 @@
 import React from "react";
 import styled from 'styled-components';
-
-class PageNav extends React.Component {
+interface IPageNavProps{
+  onClickPre:(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  onClickNext:(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  pageInfo:any
+}
+class PageNav extends React.Component<IPageNavProps> {
   render() {
     const Div = styled.div`
       width: 100%;
