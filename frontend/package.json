@@ -21,6 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "coverage": "react-scripts test --env=jsdom --watchAll=false --coverage",
+    "ci-coverage": "react-scripts test --env=jsdom --watchAll=false --coverage --coverageDirectory=../reports/",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -35,8 +36,13 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
+      "!<rootDir>/node_modules/",
       "!src/serviceWorker.js",
       "!react-app-env.d.ts"
+    ],
+    "coverageReporters": [
+      "text",
+      "cobertura"
     ]
   }
 }

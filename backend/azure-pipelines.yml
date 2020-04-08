@@ -4,8 +4,16 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- master
-- dev
+  branches:
+    include:
+    - master
+    - dev
+    - releases/*
+  paths:
+    include:
+    - backend/*
+    exclude:
+    - frontend/*
 
 strategy:
   matrix:
@@ -52,5 +60,5 @@ steps:
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: Cobertura
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/reports/flask-basic-test.xml'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml'
     reportDirectory: '$(System.DefaultWorkingDirectory)/reports/htmlcov'
