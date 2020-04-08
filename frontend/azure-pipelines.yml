@@ -8,8 +8,6 @@ trigger:
   branches:
     include:
     - master
-    - dev
-    - feature/*
   paths:
     include:
     - frontend/*
@@ -34,15 +32,15 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    cd '$(System.DefaultWorkingDirectory)/frontend'
+    cd frontend
     npm install
     npm run build
   displayName: 'npm install and build'
 
 - script: |
-    cd '$(System.DefaultWorkingDirectory)/frontend'
+    cd frontend
     npm run ci
-  displayName: 'run coverage'
+  displayName: 'run test and coverage'
 
 - task: PublishTestResults@2
   inputs:

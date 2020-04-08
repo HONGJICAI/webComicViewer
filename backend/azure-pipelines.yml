@@ -7,8 +7,6 @@ trigger:
   branches:
     include:
     - master
-    - dev
-    - feature/*
   paths:
     include:
     - backend/*
