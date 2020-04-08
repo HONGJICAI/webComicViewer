@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
-import Comic from './Comic';
+import { BrowserRouter as Router } from "react-router-dom";
+import { Comic } from './Comic';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

@@ -3,6 +3,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Intro
 
 [![Build Status](https://geeklovecode.visualstudio.com/PersonalStuff/_apis/build/status/HONGJICAI.webComicViewer?branchName=master)](https://geeklovecode.visualstudio.com/PersonalStuff/_build/latest?definitionId=3&branchName=master)
+![Azure Devops Tests](https://img.shields.io/azure-devops/tests/geeklovecode/PersonalStuff/3)
+![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/geeklovecode/PersonalStuff/3)
 
 This is the frontend codebase for WebComicViewer App.
 

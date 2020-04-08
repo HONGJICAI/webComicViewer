@@ -37,12 +37,20 @@ steps:
 - script: |
     cd backend
     pip install pytest coverage
-    coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
+    coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-test.xml
     coverage report
+    coverage html -d $(System.DefaultWorkingDirectory)/reports/htmlcov
+    coverage xml -o $(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
   displayName: 'pytest with coverage'
 
 - task: PublishTestResults@2
   inputs:
-    testResultsFiles: 'reports/flask-basic-coverage.xml'
+    testResultsFiles: 'reports/flask-basic-test.xml'
     testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
   condition: succeededOrFailed()
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/reports/flask-basic-test.xml'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/reports/htmlcov'
