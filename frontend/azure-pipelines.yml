@@ -9,15 +9,23 @@ trigger:
     include:
     - master
     - dev
-    - releases/*
+    - feature/*
   paths:
     include:
     - frontend/*
     exclude:
     - backend/*
 
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-16.04'
+    mac:
+      imageName: 'macos-10.14'
+    windows:
+      imageName: 'vs2017-win2016'
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: $(imageName)
 
 steps:
 - task: NodeTool@0
@@ -33,8 +41,14 @@ steps:
 
 - script: |
     cd '$(System.DefaultWorkingDirectory)/frontend'
-    npm run ci-coverage
+    npm run ci
   displayName: 'run coverage'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: 'reports/jest-junit.xml'
+    testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)]'
+  condition: succeededOrFailed()
 
 - task: PublishCodeCoverageResults@1
   inputs:

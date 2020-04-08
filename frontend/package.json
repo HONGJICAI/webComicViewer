@@ -21,7 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "coverage": "react-scripts test --env=jsdom --watchAll=false --coverage",
-    "ci-coverage": "react-scripts test --env=jsdom --watchAll=false --coverage --coverageDirectory=../reports/",
+    "ci": "react-scripts test --env=jsdom --watchAll=false --reporters=jest-junit --reporters=default --coverage --coverageDirectory=../reports/",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -33,6 +33,12 @@
     "not ie <= 11",
     "not op_mini all"
   ],
+  "jest-junit": {
+    "suiteName": "jest tests",
+    "outputDirectory": "../reports",
+    "outputName": "jest-junit.xml",
+    "usePathForSuiteName": "true"
+  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
@@ -44,5 +50,8 @@
       "text",
       "cobertura"
     ]
+  },
+  "devDependencies": {
+    "jest-junit": "^10.0.0"
   }
 }
