@@ -81,3 +81,5 @@ docs/_build/
 
 # my
 .vscode
+react-app-env.d.ts
+reports

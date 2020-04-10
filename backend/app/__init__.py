@@ -9,6 +9,6 @@ def get_app():
     swagger = Swagger(app)
     app.config.from_object("app.config.DevelopmentConfig")
     print(app.config)
-    app.register_blueprint(api.apiv1, url_prefix='/api/v1')
+    app.register_blueprint(api.apiv1, url_prefix="/api/v1")
 
     return app

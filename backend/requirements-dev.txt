@@ -3,3 +3,4 @@ flasgger
 flask_cors
 pytest
 coverage
+pre-commit

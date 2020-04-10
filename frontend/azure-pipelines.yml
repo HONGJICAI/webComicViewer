@@ -4,20 +4,50 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- master
-- dev
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - frontend/*
+    exclude:
+      - backend/*
 
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-16.04"
+    mac:
+      imageName: "macos-10.14"
+    windows:
+      imageName: "vs2017-win2016"
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: $(imageName)
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "10.x"
+    displayName: "Install Node.js"
 
-- script: |
-    cd '$(System.DefaultWorkingDirectory)/frontend'
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+  - script: |
+      cd frontend
+      npm install
+      npm run build
+    displayName: "npm install and build"
+
+  - script: |
+      cd frontend
+      npm run ci
+    displayName: "run test and coverage"
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: "reports/jest-junit.xml"
+      testRunTitle: "$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)]"
+    condition: succeededOrFailed()
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: "$(System.DefaultWorkingDirectory)/reports/cobertura-coverage.xml"
