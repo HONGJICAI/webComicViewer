@@ -8,7 +8,7 @@ from flask import current_app as app
 from flask import jsonify, redirect, request, send_from_directory
 from flask_cors import CORS
 
-apiv1 = Blueprint('v1', __name__)
+apiv1 = Blueprint("v1", __name__)
 CORS(apiv1)
 
 allowImgs = [".jpg", ".jpeg", ".png", ".webp", ".bmp"]
@@ -26,15 +26,22 @@ def readComicFromZip(filepath, page=0):
 
 def loadComicsList(path):
     with os.scandir(path) as entries:
-        validEntries = filter(lambda f: f.is_file() and os.path.splitext(
-            f.name)[-1].lower() in allowZips, entries)
-        return [{"id": id,
-                 "name": os.path.splitext(entry.name)[0],
-                 "lastModifiedTime": entry.stat().st_mtime,
-                 "path": entry.name} for id, entry in enumerate(validEntries)]
+        validEntries = filter(
+            lambda f: f.is_file() and os.path.splitext(f.name)[-1].lower() in allowZips,
+            entries,
+        )
+        return [
+            {
+                "id": id,
+                "name": os.path.splitext(entry.name)[0],
+                "lastModifiedTime": entry.stat().st_mtime,
+                "path": entry.name,
+            }
+            for id, entry in enumerate(validEntries)
+        ]
 
 
-@apiv1.route('/comics')
+@apiv1.route("/comics")
 def comics():
     """returning a list of comics information
     This is using docstrings for specifications.
@@ -63,14 +70,17 @@ def comics():
         schema:
           $ref: '#/definitions/Comic'
     """
-    if "COMICLIST" not in app.config or bool(request.args.get('refresh', False)) == True:
-        app.config['COMICLIST'] = loadComicsList(app.config['COMICPATH'])
-        print(app.config['COMICLIST'])
+    if (
+        "COMICLIST" not in app.config
+        or bool(request.args.get("refresh", False)) == True
+    ):
+        app.config["COMICLIST"] = loadComicsList(app.config["COMICPATH"])
+        print(app.config["COMICLIST"])
 
-    return jsonify(app.config['COMICLIST'])
+    return jsonify(app.config["COMICLIST"])
 
 
-@apiv1.route('/comics/<int:id>')
+@apiv1.route("/comics/<int:id>")
 def getComic(id):
     """returning image from zip file
     returning mimetype is "image/jpeg"
@@ -93,24 +103,23 @@ def getComic(id):
       404:
         description: Specific comic id or comic page not exist
     """
-    if id >= len(app.config['COMICLIST']):
+    if id >= len(app.config["COMICLIST"]):
         abort(404)
-    comicInfo = app.config['COMICLIST'][id]
-    filepath = comicInfo['path']
+    comicInfo = app.config["COMICLIST"][id]
+    filepath = comicInfo["path"]
     ext = os.path.splitext(filepath)[-1].lower()
-    page = int(request.args.get('page', 0))
-    ret, buf = readComicFromZip(os.path.join(
-        app.config['COMICPATH'], filepath), page)
+    page = int(request.args.get("page", 0))
+    ret, buf = readComicFromZip(os.path.join(app.config["COMICPATH"], filepath), page)
     if ret:
         return Response(response=buf, mimetype="image/jpeg")
     abort(404)
 
 
-@apiv1.route('/videos')
+@apiv1.route("/videos")
 def videos():
     return jsonify({})
 
 
-@apiv1.route('/images')
+@apiv1.route("/images")
 def images():
     return jsonify({})

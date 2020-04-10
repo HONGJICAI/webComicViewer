@@ -6,57 +6,57 @@
 trigger:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-    - backend/*
+      - backend/*
     exclude:
-    - frontend/*
+      - frontend/*
 
 strategy:
   matrix:
     linux:
-      imageName: 'ubuntu-16.04'
-      python.version: '3.7.6'
+      imageName: "ubuntu-16.04"
+      python.version: "3.7.6"
     mac:
-      imageName: 'macos-10.14'
-      python.version: '3.7.6'
+      imageName: "macos-10.14"
+      python.version: "3.7.6"
     windows:
-      imageName: 'vs2017-win2016'
-      python.version: '3.7.6'
+      imageName: "vs2017-win2016"
+      python.version: "3.7.6"
 
 pool:
   vmImage: $(imageName)
 
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "$(python.version)"
+    displayName: "Use Python $(python.version)"
 
-- script: |
-    cd backend
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+  - script: |
+      cd backend
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: "Install dependencies"
 
-- script: |
-    cd backend
-    pip install pytest coverage
-    coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-test.xml
-    coverage report
-    coverage html -d $(System.DefaultWorkingDirectory)/reports/htmlcov
-    coverage xml -o $(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
-  displayName: 'pytest with coverage'
+  - script: |
+      cd backend
+      pip install pytest coverage
+      coverage run -m pytest --junitxml=$(System.DefaultWorkingDirectory)/reports/flask-basic-test.xml
+      coverage report
+      coverage html -d $(System.DefaultWorkingDirectory)/reports/htmlcov
+      coverage xml -o $(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml
+    displayName: "pytest with coverage"
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFiles: 'reports/flask-basic-test.xml'
-    testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
-  condition: succeededOrFailed()
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: "reports/flask-basic-test.xml"
+      testRunTitle: "$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)"
+    condition: succeededOrFailed()
 
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: Cobertura
-    summaryFileLocation: '$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml'
-    reportDirectory: '$(System.DefaultWorkingDirectory)/reports/htmlcov'
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: "$(System.DefaultWorkingDirectory)/reports/flask-basic-coverage.xml"
+      reportDirectory: "$(System.DefaultWorkingDirectory)/reports/htmlcov"

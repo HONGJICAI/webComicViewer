@@ -1,9 +1,9 @@
 import React from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 export interface IPageNavProps {
-  onClickPre: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
-  onClickNext: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
-  pageInfo: any
+  onClickPre: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onClickNext: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  pageInfo: any;
 }
 export class PageNav extends React.Component<IPageNavProps> {
   render() {
@@ -14,7 +14,7 @@ export class PageNav extends React.Component<IPageNavProps> {
       text-align: left;
       display: inline-block;
       border: none;
-      color: #008CBA;
+      color: #008cba;
     `;
     const CurPage = styled.input`
       text-align: center;
@@ -24,13 +24,15 @@ export class PageNav extends React.Component<IPageNavProps> {
       text-align: right;
       display: inline-block;
       border: none;
-      color: #008CBA;
+      color: #008cba;
     `;
     return (
       <Div>
-        <Pre onClick={this.props.onClickPre}>{'<<<<'}</Pre>
-        <CurPage placeholder={`${this.props.pageInfo.curPage}/${this.props.pageInfo.totalPage}`} />
-        <Next onClick={this.props.onClickNext}>{'>>>>'}</Next>
+        <Pre onClick={this.props.onClickPre}>{"<<<<"}</Pre>
+        <CurPage
+          placeholder={`${this.props.pageInfo.curPage}/${this.props.pageInfo.totalPage}`}
+        />
+        <Next onClick={this.props.onClickNext}>{">>>>"}</Next>
       </Div>
     );
   }

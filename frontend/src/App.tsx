@@ -1,8 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import { Comic } from "./Components/Comic/Comic"
-import styled from 'styled-components';
-
+import { Comic } from "./Components/Comic/Comic";
+import styled from "styled-components";
 
 function Index() {
   return <h2>Home WIP</h2>;
@@ -14,19 +13,19 @@ function Video() {
 
 function App() {
   const Nav = styled.nav`
-  background-color: #61dafb;
+    background-color: #61dafb;
   `;
   const Ul = styled.ul`
-  margin:0;
-  padding:0;
-  display: table;
-  width:100%;
+    margin: 0;
+    padding: 0;
+    display: table;
+    width: 100%;
   `;
   const Li = styled.li`
-  width: 20%;
-  display: inline;
-  float: left;
-`;
+    width: 20%;
+    display: inline;
+    float: left;
+  `;
   return (
     <Router>
       <div>
