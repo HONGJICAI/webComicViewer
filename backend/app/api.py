@@ -1,9 +1,11 @@
 import os
 import sys
 import zipfile
+import datetime
+
 
 from flasgger import Swagger
-from flask import Blueprint, Flask, Response, abort
+from flask import Blueprint, Flask, Response, abort, make_response
 from flask import current_app as app
 from flask import jsonify, redirect, request, send_from_directory
 from flask_cors import CORS
@@ -24,6 +26,11 @@ def readComicFromZip(filepath, page=0):
             return True, f.read()
 
 
+def getComicTotalPage(filepath):
+    with zipfile.ZipFile(filepath) as archive:
+        return len(archive.infolist())
+
+
 def loadComicsList(path):
     with os.scandir(path) as entries:
         validEntries = filter(
@@ -36,6 +43,7 @@ def loadComicsList(path):
                 "name": os.path.splitext(entry.name)[0],
                 "lastModifiedTime": entry.stat().st_mtime,
                 "path": entry.name,
+                "totalPage": getComicTotalPage(os.path.join(path, entry.name)),
             }
             for id, entry in enumerate(validEntries)
         ]
@@ -105,13 +113,23 @@ def getComic(id):
     """
     if id >= len(app.config["COMICLIST"]):
         abort(404)
+    request.headers.get("Last-Lodified")
+
     comicInfo = app.config["COMICLIST"][id]
     filepath = comicInfo["path"]
-    ext = os.path.splitext(filepath)[-1].lower()
+    lastModified = datetime.datetime.fromtimestamp(comicInfo["lastModifiedTime"])
+    if request.headers.get("Last-Modified") == lastModified:
+        return "", 304
     page = int(request.args.get("page", 0))
     ret, buf = readComicFromZip(os.path.join(app.config["COMICPATH"], filepath), page)
     if ret:
-        return Response(response=buf, mimetype="image/jpeg")
+        lastModified = datetime.datetime.fromtimestamp(comicInfo["lastModifiedTime"])
+        rsp = Response(
+            response=buf, mimetype="image/jpeg", headers={"Last_Modified": lastModified}
+        )
+        rsp.Last_Modified = lastModified
+        return rsp
+
     abort(404)
 
 

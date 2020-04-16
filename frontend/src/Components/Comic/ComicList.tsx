@@ -4,6 +4,10 @@ import styled from "styled-components";
 import config from "../../config";
 import { IComic } from "./Comic";
 import { ComicPreview } from "./ComicPreview";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import { ThumbGroup, IThumb } from "../ThumbGroup";
 interface IComicListProps {
   comics: Array<IComic>;
   numPerPage: number;
@@ -29,44 +33,33 @@ export class ComicList extends React.Component<
     this.setState({ searchedComic: target.value });
   }
   render() {
-    const Img = styled.img`
-      width: 25%;
-    `;
     const comics = this.props.comics.filter((comic: IComic, idx: number) => {
       if (this.state.searchedComic) {
         return comic.name.includes(this.state.searchedComic);
       }
       return true;
     });
-    const numPerPage = this.props.numPerPage;
-    const listItems = comics.map((comic: IComic, idx: number) => (
-      <li key={"List" + comic.id}>
-        <Link to={`/comic/${comic.id}`}>
-          <Img src={`${config.backendHost}/api/v1/comics/${comic.id}`}></Img>
-          {comic.name}
-        </Link>
-      </li>
-    ));
+    const thumbs: Array<IThumb> = comics.map((comic: IComic, idx: number) => {
+      return {
+        thumbUrl: `/api/v1/comics/${comic.id}?page=${0}`,
+        jumpToUrl: `/comic/${comic.id}`,
+        thumbName: `${comic.name}`,
+      };
+    });
     return (
       <Switch>
         <Route
           exact
           path="/comic"
           render={() => (
-            <div>
+            <>
               <input
                 type="text"
                 name="searchText"
                 onInput={this.onSearchInput}
               />
-              <ul>
-                {listItems.slice(
-                  (this.props.curPage - 1) * numPerPage,
-                  Math.min(this.props.curPage * numPerPage, comics.length)
-                )}
-              </ul>
-              {this.props.pageNav}
-            </div>
+              <ThumbGroup thumbArray={thumbs} />
+            </>
           )}
         />
         <Route

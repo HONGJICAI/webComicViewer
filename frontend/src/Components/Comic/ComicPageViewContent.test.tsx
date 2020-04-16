@@ -10,10 +10,11 @@ it("renders without crashing", () => {
     name: "test",
     path: "test.zip",
     lastModifiedTime: 0,
+    totalPage: 100,
   };
   ReactDOM.render(
     <Router>
-      <ComicPageViewContent comic={comic} />
+      <ComicPageViewContent comic={comic} location={{ search: "&p=2" }} />
     </Router>,
     div
   );

@@ -2,6 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { Comic } from "./Components/Comic/Comic";
 import styled from "styled-components";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+// import Form from "react-bootstrap/From";
 
 function Index() {
   return <h2>Home WIP</h2>;
@@ -12,47 +15,30 @@ function Video() {
 }
 
 function App() {
-  const Nav = styled.nav`
-    background-color: #61dafb;
-  `;
-  const Ul = styled.ul`
-    margin: 0;
-    padding: 0;
-    display: table;
-    width: 100%;
-  `;
-  const Li = styled.li`
-    width: 20%;
-    display: inline;
-    float: left;
-  `;
   return (
     <Router>
-      <div>
-        <div>
-          <Nav>
-            <Ul>
-              <Li>
-                <Link to="/">Home</Link>
-              </Li>
-              <Li>
-                <Link to="/comic/">Comic</Link>
-              </Li>
-              <Li>
-                <Link to="/video/">Video</Link>
-              </Li>
-              <Li>
-                <Link to="/image/">Image</Link>
-              </Li>
-            </Ul>
-          </Nav>
-        </div>
-        <div>
-          <Route path="/" exact component={Index} />
-          <Route path="/comic" component={Comic} />
-          <Route path="/video" component={Video} />
-        </div>
-      </div>
+      <Navbar bg="primary" variant="dark">
+        <Navbar.Brand>Fun</Navbar.Brand>
+        <Nav className="mr-auto">
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <Link to="/comic/" className="nav-link">
+            Comic
+          </Link>
+          <Link to="/video/" className="nav-link">
+            Video
+          </Link>
+          <Link to="/image/" className="nav-link">
+            Image
+          </Link>
+        </Nav>
+      </Navbar>
+      <>
+        <Route path="/" exact component={Index} />
+        <Route path="/comic" component={Comic} />
+        <Route path="/video" component={Video} />
+      </>
     </Router>
   );
 }
