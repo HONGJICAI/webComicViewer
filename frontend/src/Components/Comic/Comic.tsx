@@ -1,11 +1,13 @@
 import React from "react";
 import { PageNav } from "../PageNav";
 import { ComicList } from "./ComicList";
-import { AppendAlertToBottom } from "./../../Utility";
+import { AppendAlertToBottom, getTagsFromNames } from "./../../Utility";
 import styled from "styled-components";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Badge from "react-bootstrap/Badge";
+import { Route, RouteComponentProps } from "react-router-dom";
 
 export interface IComic {
   id: number;
@@ -19,9 +21,12 @@ interface IComicState {
   comics: Array<IComic>;
   curPage: number;
 }
-export class Comic extends React.Component<IComicProps, IComicState> {
+export class Comic extends React.Component<
+  IComicProps & RouteComponentProps,
+  IComicState
+> {
   numPerPage: number;
-  constructor(props: IComicProps) {
+  constructor(props: IComicProps & RouteComponentProps) {
     super(props);
     this.numPerPage = 30;
     this.state = {
@@ -68,21 +73,13 @@ export class Comic extends React.Component<IComicProps, IComicState> {
       />
     );
     return (
-      <Container fluid>
-        <Row>
-          <Col xs={12} md={2}>
-            <input style={{ width: "100%" }}></input>
-          </Col>
-          <Col>
-            <ComicList
-              comics={this.state.comics}
-              numPerPage={this.numPerPage}
-              curPage={this.state.curPage}
-              pageNav={pageNav}
-            />
-          </Col>
-        </Row>
-      </Container>
+      <ComicList
+        {...this.props}
+        comics={this.state.comics}
+        numPerPage={this.numPerPage}
+        curPage={this.state.curPage}
+        pageNav={pageNav}
+      />
     );
   }
 }

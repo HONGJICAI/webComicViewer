@@ -4,7 +4,6 @@ import { Comic } from "./Components/Comic/Comic";
 import styled from "styled-components";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-// import Form from "react-bootstrap/From";
 
 function Index() {
   return <h2>Home WIP</h2>;

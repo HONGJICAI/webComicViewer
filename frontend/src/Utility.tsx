@@ -4,6 +4,22 @@ import React from "react";
 export function IsMobile() {
   return window.matchMedia("only screen and (max-width: 760px)").matches;
 }
+export function getTagsFromNames(names: Array<string>): Map<string, number> {
+  let counter = new Map();
+  names.forEach((name) => {
+    const matched = name.match(/\[.*?\]/g);
+    if (matched)
+      matched.forEach((matched) => {
+        const count = counter.has(matched) ? counter.get(matched) + 1 : 1;
+        counter.set(matched, count);
+      });
+  });
+
+  const sortedCounter = new Map(
+    [...counter.entries()].sort((a, b) => b[1] - a[1])
+  );
+  return sortedCounter;
+}
 export function AppendAlertToBottom(heading: string, message: string) {
   let div = document.createElement("div");
   const alertComponent = (

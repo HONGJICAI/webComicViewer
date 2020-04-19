@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Route, Switch } from "react-router-dom";
+import { Link, Route, Switch, RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 import config from "../../config";
 import { IComic } from "./Comic";
@@ -11,6 +11,8 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { IThumb, ThumbGroup } from "../ThumbGroup";
+import { getTagsFromNames } from "../../Utility";
+import Badge from "react-bootstrap/Badge";
 
 interface IComicPreviewProps {
   comics: Array<IComic>;
@@ -20,10 +22,10 @@ interface IComicPreviewState {
   comics: Array<IComic>;
 }
 export class ComicPreview extends React.Component<
-  IComicPreviewProps,
+  IComicPreviewProps & RouteComponentProps,
   IComicPreviewState
 > {
-  constructor(props: IComicPreviewProps) {
+  constructor(props: IComicPreviewProps & RouteComponentProps) {
     super(props);
     this.state = {
       comics: props.comics,
@@ -37,11 +39,11 @@ export class ComicPreview extends React.Component<
   }
   render() {
     const Img = styled.img`
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-    margin-bottom: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: auto;
+      margin-bottom: auto;
       height: 25vw
       width: auto
       @media only screen and (max-width: 760px){
@@ -56,20 +58,32 @@ export class ComicPreview extends React.Component<
       return <Spinner animation="border" />;
     }
     const comic = this.state.comics[comicid];
+    const tags = [...getTagsFromNames([comic.name]).keys()].map((tag) => (
+      <Badge
+        pill
+        variant="primary"
+        onClick={(e: any) => this.props.history.push(`/comic?s=${tag}`)}
+      >
+        {`${tag}`}
+      </Badge>
+    ));
     const detail = (
-      <Container>
+      <Container fluid>
         <Row>
-          <Col>
+          <Col xs md>
             <Img src={`/api/v1/comics/${comic.id}?page=0`} />
           </Col>
-          <Col>
+          <Col xs md>
             <p>Comic Name : {comic.name}</p>
-            <Link to={`/comic/${comic.id}/ScrollView`}>
-              <Button>ScrollView</Button>
-            </Link>
-            <Link to={`/comic/${comic.id}/PageView`}>
-              <Button>PageView</Button>
-            </Link>
+            {tags}
+            <Row>
+              <Link to={`/comic/${comic.id}/ScrollView`}>
+                <Button>ScrollView</Button>
+              </Link>
+              <Link to={`/comic/${comic.id}/PageView`}>
+                <Button>PageView</Button>
+              </Link>
+            </Row>
           </Col>
         </Row>
       </Container>
@@ -84,27 +98,34 @@ export class ComicPreview extends React.Component<
       };
     });
     return (
-      <Switch>
+      <>
         <Route
           exact
           path={`/comic/${comic.id}`}
           render={() => (
-            <>
-              <div>{detail}</div>
-              <br />
-              <ThumbGroup thumbArray={thumbs} />
-            </>
+            <Container fluid>
+              <Row>
+                {/* left side bar */}
+                <Col xs={0} md={2}></Col>
+                {/* main preview content */}
+                <Col>
+                  <div>{detail}</div>
+                  <br />
+                  <ThumbGroup thumbArray={thumbs} />
+                </Col>
+              </Row>
+            </Container>
           )}
         />
         <Route
           path={`/comic/${comic.id}/ScrollView`}
-          render={() => <ComicScrollViewContent comic={comic} />}
+          render={(props) => <ComicScrollViewContent comic={comic} />}
         />
         <Route
           path={`/comic/${comic.id}/PageView`}
           render={(props) => <ComicPageViewContent {...props} comic={comic} />}
         />
-      </Switch>
+      </>
     );
   }
 }

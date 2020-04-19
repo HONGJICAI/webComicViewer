@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import config from "../../config";
 import { IComic } from "./Comic";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 interface ComicScrollViewContentProps {
   comic: IComic;
 }
@@ -92,6 +95,13 @@ export class ComicScrollViewContent extends React.Component<
         }}
       />
     ));
-    return <div>{contents}</div>;
+    return (
+      <Container fluid>
+        <Row>
+          <Col xs={0} md={2}></Col>
+          <Col style={{ padding: "1px" }}>{contents}</Col>
+        </Row>
+      </Container>
+    );
   }
 }

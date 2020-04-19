@@ -56,5 +56,8 @@
   },
   "devDependencies": {
     "jest-junit": "^10.0.0"
-  }
+  },
+  "setupFiles": [
+    "<rootDir>/src/mocks.js"
+  ]
 }

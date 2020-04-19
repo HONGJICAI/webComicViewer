@@ -1,3 +1,4 @@
+import "../../mocks"; // Must be imported before the tested file
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
