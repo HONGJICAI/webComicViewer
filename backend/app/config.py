@@ -4,9 +4,7 @@ import os
 class Config(object):
     DEBUG = False
     TESTING = False
-    COMICPATH = (
-        os.environ.get("COMICPATH", "") if os.environ.get("COMICPATH", "") else "comics"
-    )
+    COMICPATH = os.environ.get("COMICPATH", "comics").split(";")
 
 
 class ProductionConfig(Config):

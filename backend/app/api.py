@@ -31,22 +31,28 @@ def getComicTotalPage(filepath):
         return len(archive.infolist())
 
 
-def loadComicsList(path):
-    with os.scandir(path) as entries:
-        validEntries = filter(
-            lambda f: f.is_file() and os.path.splitext(f.name)[-1].lower() in allowZips,
-            entries,
-        )
-        return [
-            {
-                "id": id,
-                "name": os.path.splitext(entry.name)[0],
-                "lastModifiedTime": entry.stat().st_mtime,
-                "path": entry.name,
-                "totalPage": getComicTotalPage(os.path.join(path, entry.name)),
-            }
-            for id, entry in enumerate(validEntries)
-        ]
+def loadComicsList(pathes):
+    ret = []
+    count = 0
+    for path in pathes:
+        with os.scandir(path) as entries:
+            validEntries = filter(
+                lambda f: f.is_file()
+                and os.path.splitext(f.name)[-1].lower() in allowZips,
+                entries,
+            )
+            ret += [
+                {
+                    "id": count + id,
+                    "name": os.path.splitext(entry.name)[0],
+                    "lastModifiedTime": entry.stat().st_mtime,
+                    "path": os.path.join(path, entry.name),
+                    "totalPage": getComicTotalPage(os.path.join(path, entry.name)),
+                }
+                for id, entry in enumerate(validEntries)
+            ]
+            count = len(ret)
+    return ret
 
 
 @apiv1.route("/comics")
@@ -118,16 +124,17 @@ def getComic(id):
     comicInfo = app.config["COMICLIST"][id]
     filepath = comicInfo["path"]
     lastModified = datetime.datetime.fromtimestamp(comicInfo["lastModifiedTime"])
-    if request.headers.get("Last-Modified") == lastModified:
+    if request.headers.get("If-Modified-Since") == str(lastModified):
         return "", 304
     page = int(request.args.get("page", 0))
-    ret, buf = readComicFromZip(os.path.join(app.config["COMICPATH"], filepath), page)
+    ret, buf = readComicFromZip(filepath, page)
     if ret:
         lastModified = datetime.datetime.fromtimestamp(comicInfo["lastModifiedTime"])
         rsp = Response(
-            response=buf, mimetype="image/jpeg", headers={"Last_Modified": lastModified}
+            response=buf,
+            mimetype="image/jpeg",
+            headers={"Last-Modified": lastModified, "Cache-Control": "no-cache"},
         )
-        rsp.Last_Modified = lastModified
         return rsp
 
     abort(404)

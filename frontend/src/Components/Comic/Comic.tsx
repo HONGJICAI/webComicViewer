@@ -2,11 +2,6 @@ import React from "react";
 import { PageNav } from "../PageNav";
 import { ComicList } from "./ComicList";
 import { AppendAlertToBottom, getTagsFromNames } from "./../../Utility";
-import styled from "styled-components";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Badge from "react-bootstrap/Badge";
 import { Route, RouteComponentProps } from "react-router-dom";
 
 export interface IComic {
@@ -33,11 +28,13 @@ export class Comic extends React.Component<
       comics: [],
       curPage: 1,
     };
-    this.getList();
+    this.getList = this.getList.bind(this);
+    this.getList(false);
   }
-  async getList() {
+  async getList(refresh: boolean) {
     try {
-      const rsp = await fetch(`/api/v1/comics`);
+      const arg = refresh ? "?refresh=true" : "";
+      const rsp = await fetch(`/api/v1/comics` + arg);
       if (rsp.ok) {
         const data = await rsp.json();
         this.setState({ comics: data });
@@ -54,7 +51,7 @@ export class Comic extends React.Component<
       }
     } catch (e) {
       console.log(e);
-      AppendAlertToBottom("Get comics failed", "reason unknown");
+      AppendAlertToBottom("Get comics failed", "reason unknown:" + e);
     }
   }
   render() {
@@ -79,6 +76,7 @@ export class Comic extends React.Component<
         numPerPage={this.numPerPage}
         curPage={this.state.curPage}
         pageNav={pageNav}
+        OnRefreshComics={this.getList}
       />
     );
   }

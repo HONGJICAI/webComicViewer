@@ -108,6 +108,14 @@ export class ComicPageViewContent extends React.Component<
           <Col xs={0} md={2}></Col>
           {/* main content */}
           <Col style={{ justifyContent: "center", padding: "1" }}>
+            <Button variant="light">
+              <i
+                className="fas fa-long-arrow-alt-left"
+                onClick={(e) =>
+                  this.props.history.push(`/comic/${this.props.comic.id}`)
+                }
+              ></i>
+            </Button>
             {/* comic content */}
             {contents}
             {/* Pagination  */}

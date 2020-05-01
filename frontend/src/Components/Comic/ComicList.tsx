@@ -1,11 +1,5 @@
 import React, { SyntheticEvent } from "react";
-import {
-  Link,
-  Route,
-  RouteProps,
-  RouteComponentProps,
-  Redirect,
-} from "react-router-dom";
+import { Link, Route, RouteComponentProps, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import { IComic } from "./Comic";
 import { ComicPreview } from "./ComicPreview";
@@ -15,16 +9,19 @@ import Col from "react-bootstrap/Col";
 import { ThumbGroup, IThumb } from "../ThumbGroup";
 import { getTagsFromNames, IsMobile, parseQueryString } from "../../Utility";
 import Badge from "react-bootstrap/Badge";
-import { PageNav } from "../PageNav";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
+import Collapse from "react-bootstrap/Collapse";
+import Nav from "react-bootstrap/Nav";
+import { LinkContainer } from "react-router-bootstrap";
 interface IComicListProps {
   comics: Array<IComic>;
   numPerPage: number;
   curPage: number;
   pageNav: any;
+  OnRefreshComics: Function;
 }
 interface IComicListState {
   searchedComic: string;
@@ -55,10 +52,8 @@ export class ComicList extends React.Component<
   IComicListProps & RouteComponentProps,
   IComicListState
 > {
-  // searchedComic: string;
   constructor(props: IComicListProps & RouteComponentProps) {
     super(props);
-    // this.searchedComic = "";
     this.state = {
       searchedComic: "",
       collapseTag: IsMobile() ? true : false,
@@ -116,6 +111,94 @@ export class ComicList extends React.Component<
         {`${tag}:${count}`}
       </Badge>
     ));
+    const leftSidebar = (
+      <>
+        <Row>
+          <Col xs={12} md={12}>
+            <InputGroup>
+              <FormControl
+                type="text"
+                placeholder="search..."
+                value={this.state.searchedComic}
+                onInput={this.onSearchInput}
+              />
+              <InputGroup.Append>
+                <Button onClick={() => this.setState({ searchedComic: "" })}>
+                  <i className="fas fa-times"></i>
+                </Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
+                <Button
+                  onClick={() =>
+                    this.setState({
+                      collapseTag: !this.state.collapseTag,
+                    })
+                  }
+                >
+                  <i className="fas fa-bars"></i>
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        <Row>
+          <Collapse in={!this.state.collapseTag}>
+            <div>
+              <div>{tags.length > 0 ? tagsComponent : "Tag not found"}</div>
+            </div>
+          </Collapse>
+        </Row>
+      </>
+    );
+    const mainContentHeader = (
+      <Row>
+        <Col style={{ justifyContent: "flex-start" }}>
+          <Nav variant="tabs">
+            <Nav.Item>
+              <LinkContainer to="#">
+                <Nav.Link>
+                  <i className="fas fa-home"></i>
+                </Nav.Link>
+              </LinkContainer>
+            </Nav.Item>
+            <Nav.Item>
+              <LinkContainer to="#">
+                <Nav.Link>
+                  <i className="fas fa-heart" />
+                </Nav.Link>
+              </LinkContainer>
+            </Nav.Item>
+            <Nav.Item>
+              <LinkContainer to="#">
+                <Nav.Link>
+                  <i className="fas fa-history"></i>
+                </Nav.Link>
+              </LinkContainer>
+            </Nav.Item>
+          </Nav>
+        </Col>
+        <Col style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Form.Control
+            as="select"
+            value={this.state.order}
+            style={{ width: "7em", display: "flex" }}
+            onChange={(e: any) => this.setState({ order: e.target.value })}
+          >
+            {[...supportedOrder.keys()].map((val) => (
+              <option>{val}</option>
+            ))}
+          </Form.Control>
+          <Button
+            style={{ display: "flex" }}
+            onClick={async (e: any) => {
+              this.props.OnRefreshComics(true);
+            }}
+          >
+            <i className="fas fa-sync-alt"></i>
+          </Button>
+        </Col>
+      </Row>
+    );
     return (
       <>
         <Route
@@ -124,92 +207,11 @@ export class ComicList extends React.Component<
           render={() => (
             <Container fluid>
               <Row>
-                {/* side bar */}
                 <Col xs={12} md={2}>
-                  {/* search bar */}
-                  <Row>
-                    <Col xs={12} md={12}>
-                      <InputGroup>
-                        <FormControl
-                          type="text"
-                          placeholder="search..."
-                          value={this.state.searchedComic}
-                          onInput={this.onSearchInput}
-                        />
-                        <InputGroup.Append>
-                          <Button>Clear</Button>
-                        </InputGroup.Append>
-                        <InputGroup.Append>
-                          <Button
-                            onClick={() =>
-                              this.setState({
-                                collapseTag: !this.state.collapseTag,
-                              })
-                            }
-                          >
-                            <svg
-                              className="bi bi-list"
-                              width="1em"
-                              height="1em"
-                              viewBox="0 0 16 16"
-                              fill="currentColor"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fill-rule="evenodd"
-                                d="M2.5 11.5A.5.5 0 013 11h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 7h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 3h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z"
-                                clip-rule="evenodd"
-                              />
-                            </svg>
-                          </Button>
-                        </InputGroup.Append>
-                      </InputGroup>
-                    </Col>
-                    {/* <Col xs={2} md={0}>
-                    </Col> */}
-                  </Row>
-                  {/* side bar content */}
-                  <div
-                    style={{
-                      display: `${this.state.collapseTag ? "None" : "block"}`,
-                    }}
-                  >
-                    <Row>
-                      <InputGroup>
-                        <InputGroup.Prepend>
-                          <Button>Order</Button>
-                        </InputGroup.Prepend>
-                        <Form.Control
-                          as="select"
-                          value={this.state.order}
-                          onChange={(e: any) =>
-                            this.setState({ order: e.target.value })
-                          }
-                        >
-                          {[...supportedOrder.keys()].map((val) => (
-                            <option>{val}</option>
-                          ))}
-                        </Form.Control>
-                      </InputGroup>
-                    </Row>
-                    <br />
-                    <div>{tagsComponent}</div>
-                  </div>
+                  {leftSidebar}
                 </Col>
                 <Col>
-                  <Row>
-                    <Button
-                      style={{ marginLeft: "auto" }}
-                      onClick={async (e: any) => {
-                        const rsp = await fetch("/api/v1/comics?refresh=true");
-                        if (rsp.ok) {
-                          this.props.history.push(`?`);
-                        }
-                      }}
-                    >
-                      Refresh
-                    </Button>
-                  </Row>
+                  {mainContentHeader}
                   <ThumbGroup thumbArray={thumbs} />
                 </Col>
               </Row>

@@ -46,7 +46,7 @@ export class ComicPreview extends React.Component<
       margin-bottom: auto;
       height: 25vw
       width: auto
-      @media only screen and (max-width: 760px){
+      @media only screen and (max-width: 768px){
         height: 35vw
       }
     `;
@@ -58,7 +58,8 @@ export class ComicPreview extends React.Component<
       return <Spinner animation="border" />;
     }
     const comic = this.state.comics[comicid];
-    const tags = [...getTagsFromNames([comic.name]).keys()].map((tag) => (
+    const currentComicTags = [...getTagsFromNames([comic.name]).keys()];
+    const tags = currentComicTags.map((tag) => (
       <Badge
         pill
         variant="primary"
@@ -76,16 +77,30 @@ export class ComicPreview extends React.Component<
           <Col xs md>
             <p>Comic Name : {comic.name}</p>
             {tags}
-            <Row>
-              <Link to={`/comic/${comic.id}/ScrollView`}>
-                <Button>ScrollView</Button>
-              </Link>
-              <Link to={`/comic/${comic.id}/PageView`}>
-                <Button>PageView</Button>
-              </Link>
-            </Row>
           </Col>
         </Row>
+        <Row style={{ justifyContent: "space-around" }}>
+          <Link to={`/comic/${comic.id}/ScrollView`}>
+            <Button>ScrollView</Button>
+          </Link>
+          <Link to={`/comic/${comic.id}/PageView`}>
+            <Button>PageView</Button>
+          </Link>
+          <i
+            className="far fa-heart"
+            onClick={(e) => {
+              var target = e.target as HTMLElement;
+              target.className = "fas fa-heart";
+            }}
+          ></i>
+          <i className="far fa-thumbs-up"></i>
+          <i className="far fa-thumbs-down"></i>
+        </Row>
+      </Container>
+    );
+    const leftSidebar = (
+      <Container fluid className="col-xs-0">
+        <Row></Row>
       </Container>
     );
 
@@ -106,9 +121,15 @@ export class ComicPreview extends React.Component<
             <Container fluid>
               <Row>
                 {/* left side bar */}
-                <Col xs={0} md={2}></Col>
+                <Col md={2}>{leftSidebar}</Col>
                 {/* main preview content */}
                 <Col>
+                  <Button variant="light">
+                    <i
+                      className="fas fa-long-arrow-alt-left"
+                      onClick={(e) => this.props.history.push(`/comic`)}
+                    ></i>
+                  </Button>
                   <div>{detail}</div>
                   <br />
                   <ThumbGroup thumbArray={thumbs} />

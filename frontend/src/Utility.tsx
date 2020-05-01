@@ -2,7 +2,7 @@ import Alert from "react-bootstrap/Alert";
 import ReactDOM from "react-dom";
 import React from "react";
 export function IsMobile() {
-  return window.matchMedia("only screen and (max-width: 760px)").matches;
+  return window.matchMedia("only screen and (max-width: 768px)").matches;
 }
 export function getTagsFromNames(names: Array<string>): Map<string, number> {
   let counter = new Map();
