@@ -2,6 +2,7 @@ import os
 import sys
 import zipfile
 import datetime
+import uuid
 
 
 from flasgger import Swagger
@@ -9,49 +10,75 @@ from flask import Blueprint, Flask, Response, abort, make_response
 from flask import current_app as app
 from flask import jsonify, redirect, request, send_from_directory
 from flask_cors import CORS
+import rarfile
 
 apiv1 = Blueprint("v1", __name__)
 CORS(apiv1)
 
-allowImgs = [".jpg", ".jpeg", ".png", ".webp", ".bmp"]
-allowZips = [".zip"]
+allowImgs = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"]
+allowZips = [".zip", ".rar"]
 
 
 def readComicFromZip(filepath, page=0):
-    with zipfile.ZipFile(filepath) as archive:
-        zipInfos = archive.infolist()
-        if page >= len(zipInfos):
+    _, ext = os.path.splitext(filepath)
+    if ext == ".zip":
+        with zipfile.ZipFile(filepath) as archive:
+            zipInfos = list(
+                filter(
+                    lambda x: os.path.splitext(x.filename)[-1] in allowImgs,
+                    archive.infolist(),
+                )
+            )
+            if page >= len(zipInfos):
+                return False, None
+            with archive.open(zipInfos[page]) as f:
+                return True, f.read()
+    elif ext == ".rar":
+        archive = rarfile.RarFile(filepath)
+        if page >= len(archive.infolist()) or page < 0:
             return False, None
-        with archive.open(zipInfos[page]) as f:
-            return True, f.read()
+        return True, archive.open(archive.infolist()[page])
 
 
 def getComicTotalPage(filepath):
-    with zipfile.ZipFile(filepath) as archive:
+    _, ext = os.path.splitext(filepath)
+    if ext == ".zip":
+        with zipfile.ZipFile(filepath) as archive:
+            return len(
+                list(
+                    filter(
+                        lambda x: os.path.splitext(x)[-1] in allowImgs,
+                        archive.namelist(),
+                    )
+                )
+            )
+    elif ext == ".rar":
+        archive = rarfile.RarFile(filepath)
         return len(archive.infolist())
 
 
-def loadComicsList(pathes):
-    ret = []
-    count = 0
+def loadComicsList(pathes, ret=[]):
     for path in pathes:
-        with os.scandir(path) as entries:
-            validEntries = filter(
-                lambda f: f.is_file()
-                and os.path.splitext(f.name)[-1].lower() in allowZips,
-                entries,
-            )
-            ret += [
-                {
-                    "id": count + id,
-                    "name": os.path.splitext(entry.name)[0],
-                    "lastModifiedTime": entry.stat().st_mtime,
-                    "path": os.path.join(path, entry.name),
-                    "totalPage": getComicTotalPage(os.path.join(path, entry.name)),
-                }
-                for id, entry in enumerate(validEntries)
-            ]
-            count = len(ret)
+        try:
+            with os.scandir(path) as entries:
+                for entry in entries:
+                    if entry.is_file():
+                        if os.path.splitext(entry.name)[-1].lower() in allowZips:
+                            ret += [
+                                {
+                                    "id": len(ret),
+                                    "name": os.path.splitext(entry.name)[0],
+                                    "lastModifiedTime": entry.stat().st_mtime,
+                                    "path": os.path.join(path, entry.name),
+                                    "totalPage": getComicTotalPage(
+                                        os.path.join(path, entry.name)
+                                    ),
+                                }
+                            ]
+                    else:
+                        loadComicsList([os.path.join(path, entry.name)])
+        except Exception as e:
+            print(e)
     return ret
 
 
@@ -119,7 +146,6 @@ def getComic(id):
     """
     if id >= len(app.config["COMICLIST"]):
         abort(404)
-    request.headers.get("Last-Lodified")
 
     comicInfo = app.config["COMICLIST"][id]
     filepath = comicInfo["path"]

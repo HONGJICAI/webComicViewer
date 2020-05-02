@@ -104,12 +104,7 @@ class mockDirEntry:
 
 mockDirEntries = [
     [],
-    [
-        mockDirEntry(True, "testfile.jpg"),
-        mockDirEntry(True, "testfile.zip"),
-        mockDirEntry(False, "testdir"),
-        mockDirEntry(False, "testdir.zip"),
-    ],
+    [mockDirEntry(True, "testfile.jpg"), mockDirEntry(True, "testfile.zip")],
 ]
 shouldReturnNameList = [[], ["testfile"]]
 
@@ -120,10 +115,13 @@ shouldReturnNameList = [[], ["testfile"]]
 )
 def test_loadComicsList(app, monkeypatch, mockScandirReturn, shouldReturnNameList):
     from app.api import loadComicsList
+    import zipfile
 
     with app.app_context():
         monkeypatch.setattr(os, "scandir", lambda x: mockScandir(mockScandirReturn))
-        comiclist = loadComicsList("test")
+        mockZipInfoList = [b"testbuf"]
+        monkeypatch.setattr(zipfile, "ZipFile", lambda x: mockZipFile(mockZipInfoList))
+        comiclist = loadComicsList(["test"])
         assert len(comiclist) == len(shouldReturnNameList)
         for entry, actualname in zip(comiclist, shouldReturnNameList):
             assert entry["name"] == actualname
@@ -132,8 +130,11 @@ def test_loadComicsList(app, monkeypatch, mockScandirReturn, shouldReturnNameLis
 @pytest.mark.parametrize("mockScandirReturn", [e for e in mockDirEntries])
 def test_comics(app, client, monkeypatch, mockScandirReturn):
     import json
+    import zipfile
 
     monkeypatch.setattr(os, "scandir", lambda x: mockScandir(mockScandirReturn))
+    mockZipInfoList = [b"testbuf"]
+    monkeypatch.setattr(zipfile, "ZipFile", lambda x: mockZipFile(mockZipInfoList))
     # test load comic
     rsp = client.get("/api/v1/comics")
     assert rsp.status_code == 200
@@ -157,9 +158,9 @@ def test_getComic(app, client, monkeypatch, mockScandirReturn, mockZipInfoList):
     import zipfile
 
     monkeypatch.setattr(os, "scandir", lambda x: mockScandir(mockScandirReturn))
+    monkeypatch.setattr(zipfile, "ZipFile", lambda x: mockZipFile(mockZipInfoList))
     rsp = client.get("/api/v1/comics")
     assert rsp.status_code == 200
-    monkeypatch.setattr(zipfile, "ZipFile", lambda x: mockZipFile(mockZipInfoList))
     for page in range(2):
         rsp = client.get("/api/v1/comics/0?page={}".format(page))
         if mockZipInfoList is not None and page < len(mockZipInfoList):
