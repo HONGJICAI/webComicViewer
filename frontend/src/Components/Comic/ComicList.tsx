@@ -32,12 +32,12 @@ const supportedOrder = new Map([
   [
     "Newest",
     (comic1: IComic, comic2: IComic) =>
-      comic1.lastModifiedTime > comic2.lastModifiedTime ? 1 : -1,
+      comic1.lastModifiedTime < comic2.lastModifiedTime ? 1 : -1,
   ],
   [
     "Oldest",
     (comic1: IComic, comic2: IComic) =>
-      comic1.lastModifiedTime < comic2.lastModifiedTime ? 1 : -1,
+      comic1.lastModifiedTime > comic2.lastModifiedTime ? 1 : -1,
   ],
   [
     "ABC",
@@ -97,6 +97,7 @@ export class ComicList extends React.Component<
         thumbUrl: `/api/v1/comics/${comic.id}?page=${0}`,
         jumpToUrl: `/comic/${comic.id}`,
         thumbName: `${comic.name}`,
+        footerStr: `${new Date(comic.lastModifiedTime * 1000).toDateString()}`,
       };
     });
     const comicNames = this.props.comics.map((comic) => comic.name);

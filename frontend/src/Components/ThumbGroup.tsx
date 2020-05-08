@@ -10,6 +10,7 @@ export interface IThumb {
   thumbUrl: string;
   jumpToUrl: string;
   thumbName: string;
+  footerStr?: string;
 }
 interface IThumbGroupProps {
   thumbArray: Array<IThumb>;
@@ -59,7 +60,9 @@ export class ThumbGroup extends React.Component<
             />
             <Text>{thumb.thumbName}</Text>
           </Link>
-          <small className="text-muted"></small>
+          <small className="text-muted">
+            {thumb.footerStr && thumb.footerStr}
+          </small>
         </Col>
       )
     );

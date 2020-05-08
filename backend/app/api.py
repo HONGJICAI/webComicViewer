@@ -38,6 +38,17 @@ def readComicFromZip(filepath, page=0):
         if page >= len(archive.infolist()) or page < 0:
             return False, None
         return True, archive.open(archive.infolist()[page])
+    elif ext == "":
+        validEntries = list(
+            filter(
+                lambda x: x.is_file() and os.path.splitext(x.name)[-1] in allowImgs,
+                os.scandir(filepath),
+            )
+        )
+        if page >= len(validEntries) or page < 0:
+            return False, None
+        with open(os.path.join(filepath, validEntries[page]), "rb") as f:
+            return True, f.read()
 
 
 def getComicTotalPage(filepath):
@@ -55,15 +66,25 @@ def getComicTotalPage(filepath):
     elif ext == ".rar":
         archive = rarfile.RarFile(filepath)
         return len(archive.infolist())
+    else:
+        validEntries = list(
+            filter(
+                lambda x: x.is_file() and os.path.splitext(x.name)[-1] in allowImgs,
+                list(os.scandir(filepath)),
+            )
+        )
+        return len(validEntries)
 
 
 def loadComicsList(pathes, ret=[]):
     for path in pathes:
         try:
+            dirIsValidEntry = False
             with os.scandir(path) as entries:
                 for entry in entries:
                     if entry.is_file():
-                        if os.path.splitext(entry.name)[-1].lower() in allowZips:
+                        ext = os.path.splitext(entry.name)[-1].lower()
+                        if ext in allowZips:
                             ret += [
                                 {
                                     "id": len(ret),
@@ -75,8 +96,20 @@ def loadComicsList(pathes, ret=[]):
                                     ),
                                 }
                             ]
+                        elif ext in allowImgs:
+                            dirIsValidEntry = True
                     else:
                         loadComicsList([os.path.join(path, entry.name)])
+            if dirIsValidEntry:
+                ret += [
+                    {
+                        "id": len(ret),
+                        "name": os.path.split(path)[-1],
+                        "lastModifiedTime": 0,
+                        "path": path,
+                        "totalPage": getComicTotalPage(path),
+                    }
+                ]
         except Exception as e:
             print(e)
     return ret
