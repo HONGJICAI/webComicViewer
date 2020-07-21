@@ -9,7 +9,7 @@ export interface IComic {
   name: string;
   path: string;
   lastModifiedTime: number;
-  totalPage: number;
+  page: number;
 }
 interface IComicProps {}
 interface IComicState {

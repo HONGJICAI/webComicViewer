@@ -2,3 +2,4 @@ flask
 flasgger
 flask_cors
 rarfile
+peewee

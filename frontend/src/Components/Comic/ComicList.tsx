@@ -105,6 +105,7 @@ export class ComicList extends React.Component<
     const tags = [...popularTags.entries()].filter(([tag, count]) => count > 0);
     const tagsComponent = tags.map(([tag, count]) => (
       <Badge
+        key={`badge${tag}`}
         pill
         variant="primary"
         onClick={(e: any) => this.setState({ searchedComic: tag })}

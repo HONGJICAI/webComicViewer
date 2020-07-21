@@ -11,4 +11,7 @@ def get_app():
     print(app.config)
     app.register_blueprint(api.apiv1, url_prefix="/api/v1")
 
+    from .comicmanager import comicmanager
+    comicmanager.load(app.config["COMICPATH"])        
+
     return app

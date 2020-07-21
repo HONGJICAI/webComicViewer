@@ -35,7 +35,7 @@ export class ComicPageViewContent extends React.Component<
     window.scrollTo(0, 0);
   }
   hasNextPage() {
-    return this.curPage + 1 < this.props.comic.totalPage;
+    return this.curPage + 1 < this.props.comic.page;
   }
   hasPreviousPage() {
     return this.curPage > 0;
@@ -49,7 +49,7 @@ export class ComicPageViewContent extends React.Component<
     this.hasPreviousPage() && this.props.history.push(`?p=${this.curPage - 1}`);
   }
   hasSpecifyPage(page: number) {
-    return page >= 1 && page <= this.props.comic.totalPage;
+    return page >= 1 && page <= this.props.comic.page;
   }
   turnToSpecifyPage(page: number) {
     this.hasSpecifyPage(page) && this.props.history.push(`?p=${page}`);
@@ -122,7 +122,7 @@ export class ComicPageViewContent extends React.Component<
             <PageNav
               onClickSpecifyPage={(page) => this.turnToSpecifyPage(page)}
               currentPage={this.curPage}
-              totalPage={this.props.comic.totalPage}
+              totalPage={this.props.comic.page}
             />
           </Col>
           {/* right side bar */}

@@ -83,3 +83,4 @@ docs/_build/
 .vscode
 react-app-env.d.ts
 reports
+*.db

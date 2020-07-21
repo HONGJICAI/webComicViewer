@@ -104,7 +104,7 @@ export class ComicPreview extends React.Component<
       </Container>
     );
 
-    const pages = Array.from(new Array(comic.totalPage), (val, index) => index);
+    const pages = Array.from(new Array(comic.page), (val, index) => index);
     const thumbs: Array<IThumb> = pages.map((val: number, idx: number) => {
       return {
         thumbUrl: `/api/v1/comics/${comic.id}?page=${idx}`,
